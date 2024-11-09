@@ -2,6 +2,8 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CQRSAndMediatrSampleApplication.Product;
 using MediatR.Extensions.Autofac.DependencyInjection;
+using MediatR.Extensions.Autofac.DependencyInjection.Builder;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +19,12 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
 builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
 {
-    containerBuilder.RegisterMediatR(typeof(Program).Assembly);
+    var configuration = MediatRConfigurationBuilder
+            .Create(Assembly.GetExecutingAssembly())
+            .WithAllOpenGenericHandlerTypesRegistered()
+            .Build();
+
+    containerBuilder.RegisterMediatR(configuration);
     containerBuilder.RegisterModule<ProductModule>();
 });
 
